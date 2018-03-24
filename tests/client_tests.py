@@ -6,14 +6,17 @@ from queue import Empty
 from btfxwss import BtfxWss
 from websocket import WebSocketConnectionClosedException
 
-logging.basicConfig(filename='test.log', level=logging.DEBUG)
-log = logging.getLogger(__name__)
-
+FORMAT = '%(asctime)-15s %(message)s'
+FORMATTER = logging.Formatter(FORMAT)
+FILE_HANDLER = logging.FileHandler('test.log')
+FILE_HANDLER.setFormatter(FORMATTER)
+handlers = [FILE_HANDLER]
+logging.basicConfig(format=FORMAT, level=logging.DEBUG, handlers=handlers)
 
 class BtfxWssTests(TestCase):
 
     def test_subscribing_to_data_works(self):
-        wss = BtfxWss(log_level=logging.DEBUG)
+        wss = BtfxWss(log_level=logging.DEBUG, http_proxy_host="127.0.0.1", http_proxy_port=1080)
         wss.start()
         time.sleep(1)
         wss.subscribe_to_ticker('BTCUSD')
@@ -54,7 +57,7 @@ class BtfxWssTests(TestCase):
         wss.stop()
 
     def test_is_connected_decorator_works_as_expected(self):
-        wss = BtfxWss(log_level=logging.CRITICAL)
+        wss = BtfxWss(log_level=logging.CRITICAL, http_proxy_host='127.0.0.1', http_proxy_port=1080)
         time.sleep(1)
         wss.start()
         try:
